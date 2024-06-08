@@ -75,6 +75,8 @@ PercyScript.run(async (page, percySnapshot) => {
     await navigateAndSnapshot('https://www.multion.ai/blog?type=company', '7. Blog Page Company Type Snapshot');
     await navigateAndSnapshot('https://www.multion.ai/careers', '8. Careers Page Snapshot');
     await navigateAndSnapshot('https://www.multion.ai/contact', '9. Contact Page Snapshot');
+    await navigateAndSnapshot('https://www.multion.ai/privacy', '10. Privacy Page Snapshot');
+    await navigateAndSnapshot('https://www.multion.ai/terms', '11. Terms Page Snapshot');
   } catch (error) {
     console.error('Error occurred:', error);
   }

@@ -47,6 +47,19 @@ async function triggerLazyLoading(page) {
   console.log('Scrolling complete.');
 }
 
+// Function to expand FAQ dropdowns on the Contact Us page
+async function expandFAQDropdowns(page) {
+  console.log('Expanding FAQ dropdowns...');
+  await page.evaluate(() => {
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      const button = item.querySelector('.faq-question');
+      if (button) button.click();
+    });
+  });
+  console.log('FAQ dropdowns expanded.');
+}
+
 // Main function to run the Percy script
 PercyScript.run(async (page, percySnapshot) => {
   try {
@@ -54,12 +67,15 @@ PercyScript.run(async (page, percySnapshot) => {
     await page.setViewport({ width: 1280, height: 1024 });
 
     // Helper function to navigate and take snapshot
-    async function navigateAndSnapshot(url, snapshotName) {
+    async function navigateAndSnapshot(url, snapshotName, additionalActions) {
       console.log(`Navigating to ${url}...`);
       await page.goto(url, { waitUntil: 'networkidle2' });
       console.log(`${url} navigation complete.`);
       await waitForImagesToLoad(page);
       await triggerLazyLoading(page);
+      if (additionalActions) {
+        await additionalActions();
+      }
       console.log(`Taking Percy snapshot for ${snapshotName}...`);
       await percySnapshot(snapshotName);
       console.log(`${snapshotName} snapshot taken.`);
@@ -74,7 +90,7 @@ PercyScript.run(async (page, percySnapshot) => {
     await navigateAndSnapshot('https://www.multion.ai/blog?type=product', '6. Blog Page Product Type Snapshot');
     await navigateAndSnapshot('https://www.multion.ai/blog?type=company', '7. Blog Page Company Type Snapshot');
     await navigateAndSnapshot('https://www.multion.ai/careers', '8. Careers Page Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/contact', '9. Contact Page Snapshot');
+    await navigateAndSnapshot('https://www.multion.ai/contact', '9. Contact Page Snapshot', expandFAQDropdowns);
     await navigateAndSnapshot('https://www.multion.ai/privacy', '10. Privacy Page Snapshot');
     await navigateAndSnapshot('https://www.multion.ai/terms', '11. Terms Page Snapshot');
   } catch (error) {

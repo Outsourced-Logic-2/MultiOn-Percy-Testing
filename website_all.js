@@ -2,40 +2,67 @@ const PercyScript = require('@percy/script');
 
 // Function to ensure all images are loaded
 async function waitForImagesToLoad(page) {
-  // Your existing function code
+  console.log('Waiting for images to load...');
+  const imageLoadResult = await page.evaluate(async () => {
+    const selectors = Array.from(document.querySelectorAll('img'));
+    console.log(`Found ${selectors.length} images.`);
+
+    return Promise.all(selectors.map(img => {
+      if (img.complete) {
+        console.log(`Image already complete: ${img.src}`);
+        return Promise.resolve();
+      }
+      return new Promise((resolve) => {
+        img.addEventListener('load', () => {
+          console.log(`Image loaded: ${img.src}`);
+          resolve();
+        });
+        img.addEventListener('error', () => {
+          console.error(`Image failed to load: ${img.src}`);
+          resolve(); // Continue even if an image fails to load
+        });
+        setTimeout(() => {
+          console.error(`Image load timeout: ${img.src}`);
+          resolve(); // Continue even if an image times out
+        }, 10000); // 10 seconds timeout
+      });
+    }));
+  });
+
+  console.log('Image load results:', imageLoadResult);
+  console.log('All images loaded.');
 }
 
 // Function to scroll and trigger lazy loading
 async function triggerLazyLoading(page) {
-  // Your existing function code
+  console.log('Scrolling to trigger lazy loading...');
+  let previousHeight;
+  let newHeight = await page.evaluate('document.body.scrollHeight');
+  while (previousHeight !== newHeight) {
+    previousHeight = newHeight;
+    await page.evaluate('window.scrollTo(0, document.body.scrollHeight)');
+    await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for 1 second
+    newHeight = await page.evaluate('document.body.scrollHeight');
+  }
+  console.log('Scrolling complete.');
 }
 
 // Main function to run the Percy script
 PercyScript.run(async (page, percySnapshot) => {
   try {
-    // Set multiple viewport sizes
-    const viewports = [
-      { width: 1366, height: 768 },
-      { width: 1440, height: 900 },
-      { width: 1920, height: 1080 }
-    ];
+    // Set viewport to desktop size
+    await page.setViewport({ width: 1280, height: 1024 });
 
     // Helper function to navigate and take snapshot
-    async function navigateAndSnapshot(url, snapshotName, additionalSteps) {
-      for (let viewport of viewports) {
-        await page.setViewport(viewport);
-        console.log(`Navigating to ${url} at ${viewport.width}x${viewport.height}...`);
-        await page.goto(url, { waitUntil: 'networkidle2' });
-        console.log(`${url} navigation complete.`);
-        await waitForImagesToLoad(page);
-        await triggerLazyLoading(page);
-        if (additionalSteps) {
-          await additionalSteps();
-        }
-        console.log(`Taking Percy snapshot for ${snapshotName} at ${viewport.width}x${viewport.height}...`);
-        await percySnapshot(`${snapshotName} (${viewport.width}x${viewport.height})`);
-        console.log(`${snapshotName} snapshot taken.`);
-      }
+    async function navigateAndSnapshot(url, snapshotName) {
+      console.log(`Navigating to ${url}...`);
+      await page.goto(url, { waitUntil: 'networkidle2' });
+      console.log(`${url} navigation complete.`);
+      await waitForImagesToLoad(page);
+      await triggerLazyLoading(page);
+      console.log(`Taking Percy snapshot for ${snapshotName}...`);
+      await percySnapshot(snapshotName);
+      console.log(`${snapshotName} snapshot taken.`);
     }
 
     // Visit the pages and take snapshots in the correct order

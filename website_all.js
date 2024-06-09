@@ -53,28 +53,103 @@ PercyScript.run(async (page, percySnapshot) => {
     // Set viewport to desktop size
     await page.setViewport({ width: 1280, height: 1024 });
 
-    // Helper function to navigate and take snapshot
-    async function navigateAndSnapshot(url, snapshotName) {
-      console.log(`Navigating to ${url}...`);
-      await page.goto(url, { waitUntil: 'networkidle2' });
-      console.log(`${url} navigation complete.`);
-      await waitForImagesToLoad(page);
-      await triggerLazyLoading(page);
-      console.log(`Taking Percy snapshot for ${snapshotName}...`);
-      await percySnapshot(snapshotName);
-      console.log(`${snapshotName} snapshot taken.`);
-    }
+    // Visit the Contact page
+    console.log('Navigating to the Contact page...');
+    await page.goto('https://www.multion.ai/contact', { waitUntil: 'networkidle2' });
+    console.log('Contact page navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Expanding all FAQs...');
+    await page.evaluate(() => {
+      document.querySelectorAll('[data-accordion-trigger]').forEach(button => {
+        button.click();
+      });
+    });
+    console.log('FAQs expanded.');
+    console.log('Taking Percy snapshot for Contact page...');
+    await percySnapshot('9. Contact Page Snapshot');
+    console.log('Contact page snapshot taken.');
 
-    // Visit the pages and take snapshots in the correct order
-    await navigateAndSnapshot('https://www.multion.ai/', '1. Homepage Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/api', '2. API Overview Page Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/api/pricing', '3. API Pricing Page Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/about', '4. About Page Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/blog', '5. Blog Page Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/blog?type=product', '6. Blog Page Product Type Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/blog?type=company', '7. Blog Page Company Type Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/careers', '8. Careers Page Snapshot');
-    await navigateAndSnapshot('https://www.multion.ai/contact', '9. Contact Page Snapshot');
+    // Visit the Careers page
+    console.log('Navigating to the Careers page...');
+    await page.goto('https://www.multion.ai/careers', { waitUntil: 'networkidle2' });
+    console.log('Careers page navigation complete.');
+    await waitForImagesToLoad(page);
+    await new Promise(resolve => setTimeout(resolve, 5000)); // Additional wait for dynamic content
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for Careers page...');
+    await percySnapshot('8. Careers Page Snapshot');
+    console.log('Careers page snapshot taken.');
+
+    // Visit the Blog page with company type
+    console.log('Navigating to the Blog page with company type...');
+    await page.goto('https://www.multion.ai/blog?type=company', { waitUntil: 'networkidle2' });
+    console.log('Blog page with company type navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for Blog page with company type...');
+    await percySnapshot('7. Blog Page Company Type Snapshot');
+    console.log('Blog page with company type snapshot taken.');
+
+    // Visit the Blog page with product type
+    console.log('Navigating to the Blog page with product type...');
+    await page.goto('https://www.multion.ai/blog?type=product', { waitUntil: 'networkidle2' });
+    console.log('Blog page with product type navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for Blog page with product type...');
+    await percySnapshot('6. Blog Page Product Type Snapshot');
+    console.log('Blog page with product type snapshot taken.');
+
+    // Visit the Blog page
+    console.log('Navigating to the Blog page...');
+    await page.goto('https://www.multion.ai/blog', { waitUntil: 'networkidle2' });
+    console.log('Blog page navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for Blog page...');
+    await percySnapshot('5. Blog Page Snapshot');
+    console.log('Blog page snapshot taken.');
+
+    // Visit the About page
+    console.log('Navigating to the About page...');
+    await page.goto('https://www.multion.ai/about', { waitUntil: 'networkidle2' });
+    console.log('About page navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for About page...');
+    await percySnapshot('4. About Page Snapshot');
+    console.log('About page snapshot taken.');
+
+    // Visit the API pricing page
+    console.log('Navigating to the API pricing page...');
+    await page.goto('https://www.multion.ai/api/pricing', { waitUntil: 'networkidle2' });
+    console.log('API pricing page navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for API pricing page...');
+    await percySnapshot('3. API Pricing Page Snapshot');
+    console.log('API pricing page snapshot taken.');
+
+    // Visit the API overview page
+    console.log('Navigating to the API overview page...');
+    await page.goto('https://www.multion.ai/api', { waitUntil: 'networkidle2' });
+    console.log('API overview page navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for API overview page...');
+    await percySnapshot('2. API Overview Page Snapshot');
+    console.log('API overview page snapshot taken.');
+
+    // Visit the homepage
+    console.log('Navigating to the homepage...');
+    await page.goto('https://www.multion.ai/', { waitUntil: 'networkidle2' });
+    console.log('Homepage navigation complete.');
+    await waitForImagesToLoad(page);
+    await triggerLazyLoading(page);
+    console.log('Taking Percy snapshot for homepage...');
+    await percySnapshot('1. Homepage Snapshot');
+    console.log('Homepage snapshot taken.');
   } catch (error) {
     console.error('Error occurred:', error);
   }
